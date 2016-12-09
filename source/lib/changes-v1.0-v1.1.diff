@@ -1,0 +1,136 @@
+Index: test/cipher/substitution/TemplateSubstitutionCipherTests.java
+===================================================================
+--- test/cipher/substitution/TemplateSubstitutionCipherTests.java	(Revision 206)
++++ test/cipher/substitution/TemplateSubstitutionCipherTests.java	(Revision 215)
+@@ -28,11 +28,21 @@
+ 		Class<? extends SubstitutionCipher> clazz = TemplateTestCore.getFactory().getAbstractSubstitutionCipherClass();
+ 
+ 		SubstitutionCipher mockedCipher = mock(clazz);
++		/* when(mockedCipher.encrypt("abcdef")).thenCallRealMethod(); */
++		/*
++		 * encrypt needs to be final for this to work, otherwise you need
++		 * additionally the above line.
++		 */
+ 		mockedCipher.encrypt("abcdef");
+ 
+ 		verify(mockedCipher, times(6)).translate(anyChar(), anyInt());
+ 		verify(mockedCipher, times(0)).reverseTranslate(anyChar(), anyInt());
+ 
++		/* when(mockedCipher.decrypt("abcdef")).thenCallRealMethod(); */
++		/*
++		 * encrypt needs to be final for this to work, otherwise you need
++		 * additionally the above line.
++		 */
+ 		mockedCipher.decrypt("abcdef");
+ 		verify(mockedCipher, times(6)).reverseTranslate(anyChar(), anyInt());
+ 	}
+@@ -43,6 +53,12 @@
+ 
+ 		SubstitutionCipher mockedCipher = mock(clazz);
+ 		when(mockedCipher.translate(anyChar(), anyInt())).thenReturn('b').thenReturn('a');
++
++		/* when(mockedCipher.encrypt("abc")).thenCallRealMethod(); */
++		/*
++		 * encrypt needs to be final for this to work, otherwise you need
++		 * additionally the above line.
++		 */
+ 		Assert.assertEquals("baa", mockedCipher.encrypt("abc"));
+ 
+ 		verify(mockedCipher).translate('a', 0);
+Index: test/alphabet/TemplateDistributionTests.java
+===================================================================
+--- test/alphabet/TemplateDistributionTests.java	(Revision 206)
++++ test/alphabet/TemplateDistributionTests.java	(Revision 215)
+@@ -95,7 +95,7 @@
+ 				alphabet.normalize("äöü " + TemplateTestUtils.ALICE_PLAIN), 2);
+ 
+ 		assertEquals(dis1.getSorted(1).size(), dis2.getSorted(1).size());
+-		assertEquals(dis2.getSorted(2).size(), dis2.getSorted(2).size());
++		assertEquals(dis1.getSorted(2).size(), dis2.getSorted(2).size());
+ 
+ 		for (int i = 1; i <= dis1.getSorted(2).size(); i++)
+ 			assertEquals(dis1.getByRank(2, i), dis2.getByRank(2, i));
+Index: test/utils/TemplateUtilsTests.java
+===================================================================
+--- test/utils/TemplateUtilsTests.java	(Revision 206)
++++ test/utils/TemplateUtilsTests.java	(Revision 215)
+@@ -29,7 +29,7 @@
+ 		String pretty = "abcdefghij klmnopqrst ufwxyz";
+ 		assertEquals(pretty, utils.toDisplay(ugly));
+ 		String ugly2 = "abcdefghijklmnopqrstufwxyz1234abcdefghijklmnopqrstufwxyz1234abcdefghijklmnopqrstufwxyz1234abcdefghijklmnopqrstufwxyz123";
+-		String pretty2 = "abcdefghij klmnopqrst ufwxyz1234 abcdefghij klmnopqrst ufwxyz1234 " + System.lineSeparator()
++		String pretty2 = "abcdefghij klmnopqrst ufwxyz1234 abcdefghij klmnopqrst ufwxyz1234" + System.lineSeparator()
+ 				+ "abcdefghij klmnopqrst ufwxyz1234 abcdefghij klmnopqrst ufwxyz123";
+ 		assertEquals(pretty2, utils.toDisplay(ugly2));
+ 	}
+Index: utils/Utils.java
+===================================================================
+--- utils/Utils.java	(Revision 206)
++++ utils/Utils.java	(Revision 215)
+@@ -23,6 +23,7 @@
+ 	 * will be
+ 	 * 
+ 	 * <pre>
++	 * loremipsum dolorsitam etconsecte turadipisc ingelitviv amusquisma
+ 	 * ssaestnunc elitelitdi ctumvellig ulaiddapib uspretiumr isuscrasin 
+ 	 * euismodnis inuncphare tradiameli tiaculishe ndreritnis itincidunt 
+ 	 * eunullamfe ugiatferme ntumantequ issuscipit estvehicul asitametnu 
+Index: analysis/caeser/CaesarCryptanalysis.java
+===================================================================
+--- analysis/caeser/CaesarCryptanalysis.java	(Revision 206)
++++ analysis/caeser/CaesarCryptanalysis.java	(Revision 215)
+@@ -1,36 +1,28 @@
+ package de.tudarmstadt.gdi1.project.analysis.caeser;
+ 
++import de.tudarmstadt.gdi1.project.alphabet.Alphabet;
+ import de.tudarmstadt.gdi1.project.alphabet.Dictionary;
+ import de.tudarmstadt.gdi1.project.alphabet.Distribution;
+ import de.tudarmstadt.gdi1.project.analysis.KnownCiphertextAnalysis;
++import de.tudarmstadt.gdi1.project.analysis.KnownPlaintextAnalysis;
+ 
+-public interface CaesarCryptanalysis extends KnownCiphertextAnalysis {
++public interface CaesarCryptanalysis extends KnownCiphertextAnalysis, KnownPlaintextAnalysis {
+ 
+-	/*
+-	 * (non-Javadoc)
+-	 * 
+-	 * @see de.tudarmstadt.gdi1.project.analysis.KnownCiphertextAnalysis#
+-	 * knownCiphertextAttack(java.lang.String,
+-	 * de.tudarmstadt.gdi1.project.alphabet.Distribution)
+-	 */
+-	public Integer knownCiphertextAttack(String ciphertext, Distribution distribution);
++	@Override
++	Integer knownCiphertextAttack(String ciphertext, Distribution distribution);
+ 
+-	/*
+-	 * (non-Javadoc)
+-	 * 
+-	 * @see de.tudarmstadt.gdi1.project.analysis.KnownCiphertextAnalysis#
+-	 * knownCiphertextAttack(java.lang.String,
+-	 * de.tudarmstadt.gdi1.project.alphabet.Dictionary)
+-	 */
+-	public Integer knownCiphertextAttack(String ciphertext, Dictionary dictionary);
++	@Override
++	Integer knownCiphertextAttack(String ciphertext, Dictionary dictionary);
+ 
+-	/*
+-	 * (non-Javadoc)
+-	 * 
+-	 * @see de.tudarmstadt.gdi1.project.analysis.KnownCiphertextAnalysis#
+-	 * knownCiphertextAttack(java.lang.String,
+-	 * de.tudarmstadt.gdi1.project.alphabet.Distribution,
+-	 * de.tudarmstadt.gdi1.project.alphabet.Dictionary)
+-	 */
+-	public Integer knownCiphertextAttack(String ciphertext, Distribution distribution, Dictionary dict);
++	@Override
++	Integer knownCiphertextAttack(String ciphertext, Distribution distribution, Dictionary dict);
++
++	@Override
++	Integer knownPlaintextAttack(String ciphertext, String plaintext, Alphabet alphabet);
++
++	@Override
++	Integer knownPlaintextAttack(String ciphertext, String plaintext, Distribution distribution);
++
++	@Override
++	Integer knownPlaintextAttack(String ciphertext, String plaintext, Distribution distribution, Dictionary dictionary);
+ }

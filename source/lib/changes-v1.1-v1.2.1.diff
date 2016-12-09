@@ -1,0 +1,72 @@
+Index: test/alphabet/TemplateDistributionTests.java
+===================================================================
+--- test/alphabet/TemplateDistributionTests.java	(Revision 216)
++++ test/alphabet/TemplateDistributionTests.java	(Arbeitskopie)
+@@ -76,7 +76,7 @@
+ 
+ 	@Test
+ 	public void testTemplateDistributionTrigramSorted() {
+-		String text = "aaabbccccd";
++		String text = "aaaabbcccccd";
+ 
+ 		Distribution d = TemplateTestCore.getFactory().getDistributionInstance(
+ 				TemplateTestUtils.getDefaultAlphabet(), text, 3);
+Index: alphabet/Dictionary.java
+===================================================================
+--- alphabet/Dictionary.java	(Revision 216)
++++ alphabet/Dictionary.java	(Arbeitskopie)
+@@ -7,6 +7,9 @@
+  * A word is valid if it contains only characters that are part of the given
+  * alphabet.
+  * 
++ * The iterator should iterate over the dictionary in natural, i.e.
++ * lexicographic, order
++ * 
+  */
+ public interface Dictionary extends Iterable<String> {
+ 
+Index: analysis/monoalphabetic/Individual.java
+===================================================================
+--- analysis/monoalphabetic/Individual.java	(Revision 216)
++++ analysis/monoalphabetic/Individual.java	(Arbeitskopie)
+@@ -21,4 +21,11 @@
+ 	 * @return the individual's fitness
+ 	 */
+ 	double getFitness();
++
++	/**
++	 * 
++	 * @param fitness
++	 */
++	void setFitness(double fitness);
++
+ }
+Index: test/Main.java
+===================================================================
+--- test/Main.java	(Revision 216)
++++ test/Main.java	(Revision 223)
+@@ -7,8 +7,6 @@
+ //import de.tudarmstadt.gdi1.project.test.alphabet.TemplateObjectWithFrequencyTests;
+ //import de.tudarmstadt.gdi1.project.test.analysis.TemplateEncryptionOracleTests;
+ 
+-
+-
+ import de.tudarmstadt.gdi1.project.test.alphabet.TemplateAlphabetTests;
+ import de.tudarmstadt.gdi1.project.test.alphabet.TemplateDictionaryTests;
+ import de.tudarmstadt.gdi1.project.test.alphabet.TemplateDistributionTests;
+@@ -16,6 +14,7 @@
+ import de.tudarmstadt.gdi1.project.test.analysis.TemplateValidationDecryptionOracle;
+ import de.tudarmstadt.gdi1.project.test.analysis.TemplateVigenereCryptanalysisTests;
+ import de.tudarmstadt.gdi1.project.test.analysis.monoalphabetic.TemplateIndividualTests;
++import de.tudarmstadt.gdi1.project.test.analysis.monoalphabetic.TemplateMonoalphabeticCpaNpaCryptanalysisTests;
+ import de.tudarmstadt.gdi1.project.test.cipher.enigma.TemplateEnigmaTest;
+ import de.tudarmstadt.gdi1.project.test.cipher.enigma.TemplatePinBoardTest;
+ import de.tudarmstadt.gdi1.project.test.cipher.enigma.TemplateReverseRotorTest;
+@@ -48,6 +47,7 @@
+ 	TemplateValidationDecryptionOracle.class,
+ 	TemplateVigenereCryptanalysisTests.class,
+ 	TemplateIndividualTests.class,
++	TemplateMonoalphabeticCpaNpaCryptanalysisTests.class,
+ 
+ 	
+ 	/* enigma */
